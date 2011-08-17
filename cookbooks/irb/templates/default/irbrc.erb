@@ -1,0 +1,9 @@
+class Object
+  def node
+    @node ||= begin
+      require 'rubygems'
+      require 'json'
+      JSON.parse(File.read("/etc/chef/dna.json"))
+    end
+  end
+end
