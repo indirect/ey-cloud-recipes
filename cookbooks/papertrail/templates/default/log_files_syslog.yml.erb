@@ -1,0 +1,6 @@
+hostname: <%= @hostname %>
+files: [/var/log/syslog]
+parse_fields: "^(\\w+ +\\d+ \\S+) (\\S+) ([^: ]+):? (.*)$"
+destination:
+  host: logs.papertrailapp.com
+  port: <%= @port_number %>

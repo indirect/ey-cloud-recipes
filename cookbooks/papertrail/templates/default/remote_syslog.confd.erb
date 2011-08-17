@@ -1,0 +1,9 @@
+# /etc/conf.d/<%= @name %>: config file for /etc/init.d/<%= @name %>
+# Distributed under the terms of the Apache License, Version 2.0
+
+<% @name ||= 'remote_syslog' %>
+NAME="<%= @name %>"
+DAEMON="/usr/sbin/${NAME}"
+CONFIG="<%= @config %>"
+PIDFILE="/var/run/${NAME}.pid"
+DAEMON_ARGS="-c ${CONFIG} --pid-file ${PIDFILE}"
