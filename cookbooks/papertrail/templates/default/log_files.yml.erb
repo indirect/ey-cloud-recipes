@@ -1,9 +1,0 @@
-files:
-  - /var/log/syslog
-  - /var/log/engineyard/nginx/*.log
-  - /var/log/engineyard/apps/*/*.log
-  - /var/log/mysql/*.log
-  - /var/log/mysql/mysql.err
-destination:
-  host: logs.papertrailapp.com
-  port: <%= @port_number %>
