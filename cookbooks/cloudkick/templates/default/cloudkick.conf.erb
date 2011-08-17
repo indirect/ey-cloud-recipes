@@ -11,3 +11,7 @@
 oauth_key <%= @oauth_key %>
 # oAuth consumer secret
 oauth_secret <%= @oauth_secret %>
+<% if @tags %>
+# tags for this node
+tags <%= @tags.join(", ") %>
+<% end %>

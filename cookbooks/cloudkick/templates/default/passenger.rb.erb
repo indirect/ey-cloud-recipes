@@ -1,0 +1,61 @@
+#!/usr/bin/env ruby
+#################
+#
+# This script formats the output from passenger-status for cloudkick.
+# Do whatever you want with it, but credit me (aka MIT License)
+# by Andre Arko <andre@arko.net>
+#
+#################
+
+require 'rubygems'
+require 'phusion_passenger'
+require 'phusion_passenger/platform_info'
+require 'phusion_passenger/admin_tools/server_instance'
+include PhusionPassenger::AdminTools
+
+if ARGV.empty?
+  server_instances = ServerInstance.list
+  if server_instances.empty?
+    puts "status critical Passenger not running"
+    exit(1)
+  elsif server_instances.size > 1
+    pids = server_instances.map{|i| i.pid }
+    puts "status critical Passenger running with PIDs #{pids.join(', ')}"
+    exit(1)
+  else
+    instance = server_instances.first
+  end
+else
+  instance = ServerInstance.for_pid(ARGV[0].to_i)
+  unless instance
+    puts "status critical couldn't get Passenger with PID #{ARGV[0]}"
+    exit(1)
+  end
+end
+
+puts "status ok Passenger running with PID #{instance.pid}"
+
+status = instance.connect(:passenger_status){ instance.status }
+sections = status.split(/----------- \w+? -----------/)
+
+# General information section
+counts = sections.first.split("\n")
+counts[2..4].each do |c|
+  puts c.gsub(/(.*?)\s+= (\d+)/, 'metric \1 int \2')
+end
+puts counts.last.gsub(/(.*?): (\d+)/, 'metric waiting int \2')
+
+# Groups section
+groups = sections.last.strip.split("\n\n")
+groups.each do |g|
+  # capistrano-deployed apps
+  if g =~ /.*\/(.*?)\/current:\s/
+    app_name = $1
+  # non-capistrano apps
+  elsif g =~ g.scan(/.*\/(.*?):\s/)
+    app_name = $1
+  end
+  app_name.gsub!(/[-.]/,'_')
+  count = g.split("\n").size - 1
+  puts "metric #{app_name}_workers int #{count}"
+end
